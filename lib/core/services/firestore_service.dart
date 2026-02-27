@@ -274,6 +274,18 @@ class FirestoreService {
     await _db.collection("hotel_requests").doc(id).update({"status": status});
   }
 
+  // Stream<List<HotelRequest>> streamAllHotelRequests() {
+  //   return _db
+  //       .collection('hotel_requests')
+  //       .orderBy('createdAt', descending: true)
+  //       .snapshots()
+  //       .map((snapshot) {
+  //         return snapshot.docs
+  //             .map((doc) => HotelRequest.fromJson(doc.data()))
+  //             .toList();
+  //       });
+  // }
+  // 🔥 ALL HOTEL REQUESTS (ADMIN)
   Stream<List<HotelRequest>> streamAllHotelRequests() {
     return _db
         .collection('hotel_requests')
@@ -281,11 +293,12 @@ class FirestoreService {
         .snapshots()
         .map((snapshot) {
           return snapshot.docs
-              .map((doc) => HotelRequest.fromJson(doc.data()))
+              .map((doc) => HotelRequest.fromFirestore(doc))
               .toList();
         });
   }
 
+  // 🔥 USER HOTEL REQUESTS
   Stream<List<HotelRequest>> streamUserHotelRequests(String userId) {
     return _db
         .collection('hotel_requests')
@@ -294,10 +307,37 @@ class FirestoreService {
         .snapshots()
         .map((snapshot) {
           return snapshot.docs
-              .map((doc) => HotelRequest.fromJson(doc.data()))
+              .map((doc) => HotelRequest.fromFirestore(doc))
               .toList();
         });
+  } // 🔥 ADD HOTEL REQUEST
+
+  Future<void> addHotelRequest(HotelRequest request) async {
+    await _db.collection('hotel_requests').add(request.toJson());
   }
+
+  // 🔥 UPDATE STATUS
+  Future<void> updateHotelStatus(String id, String status) async {
+    await _db.collection('hotel_requests').doc(id).update({'status': status});
+  }
+
+  // 🔥 DELETE REQUEST
+  Future<void> deleteHotelRequest(String id) async {
+    await _db.collection('hotel_requests').doc(id).delete();
+  }
+
+  // Stream<List<HotelRequest>> streamUserHotelRequests(String userId) {
+  //   return _db
+  //       .collection('hotel_requests')
+  //       .where('userId', isEqualTo: userId)
+  //       .orderBy('createdAt', descending: true)
+  //       .snapshots()
+  //       .map((snapshot) {
+  //         return snapshot.docs
+  //             .map((doc) => HotelRequest.fromJson(doc.data()))
+  //             .toList();
+  //       });
+  // }
 
   Future<void> uploadHotelConfirmation({
     required String userId,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:user_app/features/user/documents_screen.dart';
-import 'package:user_app/features/user/hotel_request_screen.dart';
+import 'package:user_app/features/user/services/hotel_request_screen.dart';
 import 'package:user_app/features/user/profile_screen.dart';
 import 'package:user_app/themes/app_theme.dart';
 import 'user_home_screen.dart';

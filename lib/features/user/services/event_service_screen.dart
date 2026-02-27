@@ -1,14 +1,14 @@
 import 'member_upload_service_screen.dart';
 import 'package:flutter/material.dart';
 
-class PoolServiceScreen extends StatelessWidget {
+class EventPassServiceScreen extends StatelessWidget {
   final String userId;
-  const PoolServiceScreen({super.key, required this.userId});
+  const EventPassServiceScreen({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
     return const MemberUploadServiceScreen(
-      serviceType: "swimming",
+      serviceType: "eventPass",
       maxMembers: 4,
     );
   }
