@@ -1136,17 +1136,15 @@
 //       ),
 //     );
 //   }
-// }
+// }import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:user_app/features/user/services/banquet_service_scree.dart';
-import 'package:user_app/features/user/services/event_service_screen.dart';
-import 'package:user_app/features/user/services/hotel_request_screen.dart';
+
 import 'package:user_app/features/user/reviews_screen.dart';
 
 import 'package:user_app/features/user/services/gym_service_screen.dart';
-import 'package:user_app/features/user/services/insurance_service_screen.dart';
+import 'package:user_app/features/user/services/hotel_request_screen.dart';
 
 import 'package:user_app/features/user/services/pool_service_screen.dart';
 import 'package:user_app/features/user/services/resort_pass_screen.dart';
@@ -1263,76 +1261,8 @@ class UserHomeScreen extends ConsumerWidget {
                       _PopularDestinations(userId: userId),
                       const SizedBox(height: 26),
                       const SizedBox(height: 30),
-                      const Text(
-                        "Testimonials",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      StreamBuilder<QuerySnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('reviews')
-                            .where('isApproved', isEqualTo: true)
-                            .orderBy('createdAt', descending: true)
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          if (snapshot.hasError) {
-                            return const Center(
-                              child: Text("Error loading reviews"),
-                            );
-                          }
-
-                          if (!snapshot.hasData ||
-                              snapshot.data!.docs.isEmpty) {
-                            return const Center(
-                              child: Text("No testimonials yet"),
-                            );
-                          }
-
-                          final reviews = snapshot.data!.docs;
-
-                          return Column(
-                            children: reviews.map((doc) {
-                              final data = doc.data() as Map<String, dynamic>;
-
-                              final String name = data['name'] ?? "User";
-                              final String comment = data['comment'] ?? "";
-                              final int rating = (data['rating'] ?? 0).toInt();
-                              final String imageUrl = data['imageUrl'] ?? "";
-
-                              return Card(
-                                child: ListTile(
-                                  leading: imageUrl.isNotEmpty
-                                      ? CircleAvatar(
-                                          backgroundImage: NetworkImage(
-                                            imageUrl,
-                                          ),
-                                        )
-                                      : const CircleAvatar(
-                                          child: Icon(Icons.person),
-                                        ),
-                                  title: Text(name),
-                                  subtitle: Text(comment),
-                                  trailing: Text("$rating ⭐"),
-                                ),
-                              );
-                            }).toList(),
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      ElevatedButton(
-                        onPressed: () {
+                      _TestimonialsSection(
+                        onWriteReview: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -1340,7 +1270,6 @@ class UserHomeScreen extends ConsumerWidget {
                             ),
                           );
                         },
-                        child: const Text("Write a Review"),
                       ),
                       const _OfferBanner(),
                       const SizedBox(height: 32),
@@ -1567,13 +1496,10 @@ class _MembershipPopup extends StatelessWidget {
   });
 
   static const _fac = [
-    (' Insurance', 'Insurance', Icons.health_and_safety_outlined),
+    ('Travel Insurance', 'travelInsurance', Icons.health_and_safety_outlined),
     ('Gym Access', 'gym', Icons.fitness_center_rounded),
     ('Swimming Pool', 'swimmingPool', Icons.pool_rounded),
     ('Compliment Plot', 'complimentPlot', Icons.villa_outlined),
-    ('Event pass', 'eventpass', Icons.event_available_rounded),
-    ('Resort Access', 'resortAccess', Icons.beach_access_rounded),
-    ('Banquet Access', 'banquetAccess', Icons.restaurant_menu_rounded),
   ];
 
   String _formatDate(DateTime dt) {
@@ -2050,23 +1976,21 @@ class _ServicesRow extends StatelessWidget {
   const _ServicesRow({required this.userId});
 
   static const _svcs = [
+    _SI('Holiday', Icons.beach_access_rounded),
     _SI('Hotel', Icons.hotel_rounded),
     _SI('Gym', Icons.fitness_center_rounded),
     _SI('Pool', Icons.pool_rounded),
-    _SI('Event pass', Icons.event_available_rounded),
-    _SI('Banquet', Icons.restaurant_menu_rounded),
-    _SI('Insurance', Icons.health_and_safety),
     _SI('Resort Pass', Icons.villa_rounded),
   ];
 
   void _nav(BuildContext ctx, String t) {
     switch (t) {
-      // case 'Holiday':
-      //   Navigator.push(
-      //     ctx,
-      //     MaterialPageRoute(builder: (_) => const HotelRequestScreen()),
-      //   );
-      //   break;
+      case 'Holiday':
+        Navigator.push(
+          ctx,
+          MaterialPageRoute(builder: (_) => const HotelRequestScreen()),
+        );
+        break;
       case 'Hotel':
         Navigator.push(
           ctx,
@@ -2083,30 +2007,6 @@ class _ServicesRow extends StatelessWidget {
         Navigator.push(
           ctx,
           MaterialPageRoute(builder: (_) => PoolServiceScreen(userId: userId)),
-        );
-        break;
-      case 'Event pass':
-        Navigator.push(
-          ctx,
-          MaterialPageRoute(
-            builder: (_) => EventPassServiceScreen(userId: userId),
-          ),
-        );
-        break;
-      case 'Banquet':
-        Navigator.push(
-          ctx,
-          MaterialPageRoute(
-            builder: (_) => BanquetServiceScreen(userId: userId),
-          ),
-        );
-        break;
-      case 'Insurance':
-        Navigator.push(
-          ctx,
-          MaterialPageRoute(
-            builder: (_) => InsuranceServiceScreen(userId: userId),
-          ),
         );
         break;
       case 'Resort Pass':
@@ -2327,6 +2227,238 @@ class _OfferBanner extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  TESTIMONIALS SECTION — styled like website feedback cards
+// ══════════════════════════════════════════════════════════════════════
+class _TestimonialsSection extends StatelessWidget {
+  final VoidCallback onWriteReview;
+  const _TestimonialsSection({required this.onWriteReview});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section header
+        Center(
+          child: Column(
+            children: [
+              Text(
+                'Testimonial',
+                style: TextStyle(
+                  color: AppColors.accent,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  fontStyle: FontStyle.italic,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Our Clients Feedback',
+                style: AppTextStyles.headingLarge.copyWith(fontSize: 22),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Horizontal scrollable review cards
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('reviews')
+              .where('isApproved', isEqualTo: true)
+              .limit(10)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24),
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+              );
+            }
+            final docs = snapshot.data!.docs;
+            if (docs.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text('No reviews yet', style: AppTextStyles.bodySmall),
+                ),
+              );
+            }
+
+            return SizedBox(
+              height: 260,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.zero,
+                itemCount: docs.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 14),
+                itemBuilder: (context, i) {
+                  final d = docs[i].data() as Map<String, dynamic>;
+                  return _ReviewCard(data: d);
+                },
+              ),
+            );
+          },
+        ),
+
+        const SizedBox(height: 20),
+
+        // Write a review button
+        SizedBox(
+          width: double.infinity,
+          child: AppButton(
+            label: 'Write a Review',
+            onTap: onWriteReview,
+            icon: const Icon(
+              Icons.rate_review_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ReviewCard extends StatelessWidget {
+  final Map<String, dynamic> data;
+  const _ReviewCard({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    final String name = data['name'] ?? 'Member';
+    final String comment = data['comment'] ?? '';
+    final int rating = (data['rating'] ?? 5).toInt();
+    final String? imageUrl = data['imageUrl'];
+    final String role = data['role'] ?? '';
+    final String company = data['company'] ?? '';
+
+    return Container(
+      width: 220,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadius.large,
+        boxShadow: AppShadows.card,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Stars
+          Row(
+            children: List.generate(
+              5,
+              (i) => Icon(
+                i < rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                color: AppColors.accent,
+                size: 18,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Comment
+          Expanded(
+            child: Text(
+              comment,
+              style: AppTextStyles.bodySmall.copyWith(
+                height: 1.55,
+                color: AppColors.textSecondary,
+              ),
+              overflow: TextOverflow.fade,
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // User row
+          Row(
+            children: [
+              // Avatar
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.primarySurface,
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: imageUrl != null && imageUrl.isNotEmpty
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.person_rounded,
+                          color: AppColors.primary,
+                        ),
+                      )
+                    : const Icon(
+                        Icons.person_rounded,
+                        color: AppColors.primary,
+                      ),
+              ),
+              const SizedBox(width: 10),
+
+              // Name & role
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: AppTextStyles.labelMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (role.isNotEmpty)
+                      Text(
+                        role,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textHint,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    if (company.isNotEmpty)
+                      Text(
+                        company,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.textHint,
+                          fontSize: 10,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+              ),
+
+              // Quote icon
+              Text(
+                '"',
+                style: TextStyle(
+                  color: AppColors.accent,
+                  fontSize: 42,
+                  height: 0.9,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
           ),
         ],
       ),

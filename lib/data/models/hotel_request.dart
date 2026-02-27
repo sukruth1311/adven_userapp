@@ -60,7 +60,11 @@
 //       createdAt: (json["createdAt"] as Timestamp).toDate(),
 //     );
 //   }
-// }
+// }import 'package:cloud_firestore/cloud_firestore.dart';
+
+// ROOT CAUSE OF invalid-argument ERROR:
+// Firestore CANNOT store raw Dart DateTime objects.
+// All DateTime values must be converted to Timestamp via Timestamp.fromDate().
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HotelRequest {
@@ -77,7 +81,7 @@ class HotelRequest {
   final String status;
   final DateTime createdAt;
 
-  // Holiday-specific fields
+  // Merged holiday fields
   final String subDestination;
   final String memberName;
   final int totalDays;
@@ -108,22 +112,14 @@ class HotelRequest {
     this.aadharUrl,
   });
 
-  // 🔥 FROM FIRESTORE (SAFE VERSION)
   factory HotelRequest.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-
+    DateTime ts(dynamic v) => v is Timestamp ? v.toDate() : DateTime.now();
     return HotelRequest(
       id: doc.id,
       userId: data['userId'] ?? '',
-
-      checkIn: data['checkIn'] != null
-          ? (data['checkIn'] as Timestamp).toDate()
-          : DateTime.now(),
-
-      checkOut: data['checkOut'] != null
-          ? (data['checkOut'] as Timestamp).toDate()
-          : DateTime.now(),
-
+      checkIn: ts(data['checkIn']),
+      checkOut: ts(data['checkOut']),
       location: data['location'] ?? '',
       isInternational: data['isInternational'] ?? false,
       nights: data['nights'] ?? 0,
@@ -131,26 +127,18 @@ class HotelRequest {
       travelMode: data['travelMode'] ?? '',
       specialRequest: data['specialRequest'] ?? '',
       status: data['status'] ?? 'pending',
-
-      createdAt: data['createdAt'] != null
-          ? (data['createdAt'] as Timestamp).toDate()
-          : DateTime.now(),
-
+      createdAt: ts(data['createdAt']),
       subDestination: data['subDestination'] ?? '',
       memberName: data['memberName'] ?? '',
       totalDays: data['totalDays'] ?? 0,
       adults: data['adults'] ?? 1,
       kids: data['kids'] ?? 0,
-
-      travelDate: data['travelDate'] != null
-          ? (data['travelDate'] as Timestamp).toDate()
-          : null,
-
+      travelDate: data['travelDate'] != null ? ts(data['travelDate']) : null,
       aadharUrl: data['aadharUrl'],
     );
   }
 
-  // 🔥 TO FIRESTORE (PROPER TIMESTAMP CONVERSION)
+  // FIX: All DateTime converted to Timestamp so Firestore accepts them
   Map<String, dynamic> toJson() => {
     'userId': userId,
     'checkIn': Timestamp.fromDate(checkIn),
