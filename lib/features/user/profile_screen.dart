@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:user_app/state/user_provider.dart';
 import 'package:user_app/state/user_stream.dart';
 import 'package:user_app/themes/app_theme.dart';
 import 'package:user_app/themes/app_widgets.dart';
@@ -313,7 +312,7 @@ class _LegalTile extends StatelessWidget {
   );
 }
 
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 //  USER HISTORY SCREEN
 // ════════════════════════════════════════════════════════════
 class UserHistoryScreen extends StatefulWidget {

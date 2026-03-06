@@ -183,26 +183,33 @@ class OtpBox extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final ValueChanged<String> onChanged;
+  final double width;
+  final double height;
 
   const OtpBox({
     super.key,
     required this.controller,
     required this.focusNode,
     required this.onChanged,
+    this.width = 48,
+    this.height = 58,
   });
 
   @override
   Widget build(BuildContext context) {
     final isFilled = controller.text.isNotEmpty;
+    final isActive = focusNode.hasFocus;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-      width: 46,
-      height: 56,
+      width: width,
+      height: height,
       decoration: BoxDecoration(
-        borderRadius: AppRadius.small,
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isFilled ? AppColors.primary : AppColors.border,
-          width: isFilled ? 1.8 : 1.2,
+          color: isActive
+              ? AppColors.primary
+              : (isFilled ? AppColors.primary : AppColors.border),
+          width: isActive ? 1.8 : 1.2,
         ),
         color: isFilled ? AppColors.primarySurface : AppColors.surface,
       ),

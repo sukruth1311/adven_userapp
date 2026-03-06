@@ -37,6 +37,9 @@ class _OtpScreenState extends State<OtpScreen>
   @override
   void initState() {
     super.initState();
+    for (final node in _focusNodes) {
+      node.addListener(_onFocusChanged);
+    }
     _anim = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -52,9 +55,16 @@ class _OtpScreenState extends State<OtpScreen>
   @override
   void dispose() {
     for (final c in _controllers) c.dispose();
-    for (final f in _focusNodes) f.dispose();
+    for (final f in _focusNodes) {
+      f.removeListener(_onFocusChanged);
+      f.dispose();
+    }
     _anim.dispose();
     super.dispose();
+  }
+
+  void _onFocusChanged() {
+    if (mounted) setState(() {});
   }
 
   String get _otp => _controllers.map((c) => c.text).join();
@@ -211,16 +221,31 @@ class _OtpScreenState extends State<OtpScreen>
                         SizedBox(height: size.height * 0.05),
 
                         // OTP boxes
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: List.generate(
-                            6,
-                            (i) => OtpBox(
-                              controller: _controllers[i],
-                              focusNode: _focusNodes[i],
-                              onChanged: (v) => _onOtpChanged(v, i),
-                            ),
-                          ),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            const gap = 10.0;
+                            final boxWidth =
+                                ((constraints.maxWidth - (gap * 5)) / 6).clamp(
+                                  44.0,
+                                  52.0,
+                                );
+                            return Row(
+                              children: List.generate(6, (i) {
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    right: i == 5 ? 0 : gap,
+                                  ),
+                                  child: OtpBox(
+                                    controller: _controllers[i],
+                                    focusNode: _focusNodes[i],
+                                    onChanged: (v) => _onOtpChanged(v, i),
+                                    width: boxWidth,
+                                    height: 58,
+                                  ),
+                                );
+                              }),
+                            );
+                          },
                         ),
 
                         SizedBox(height: size.height * 0.05),

@@ -1,3 +1,4 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,8 +16,12 @@ import 'features/auth/login_screen.dart';
 // ══════════════════════════════════════════════════════════════════════
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   WebViewPlatform.instance = AndroidWebViewPlatform();
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.playIntegrity,
+  );
   runApp(const ProviderScope(child: UserApp()));
 }
 
@@ -96,7 +101,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     if (authAsync.hasValue) {
       _doNavigate(authAsync.value);
     } else {
-      // Auth still loading — listen once
       ref.listenManual(authStateProvider, (_, next) {
         next.whenData(_doNavigate);
       });
@@ -142,7 +146,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             children: [
               const Spacer(flex: 2),
 
-              // Logo + name
+              // ── Logo + App Name ──────────────────────────────
               AnimatedBuilder(
                 animation: _ctrl,
                 builder: (_, __) => FadeTransition(
@@ -151,31 +155,50 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     scale: _logoScale,
                     child: Column(
                       children: [
+                        // App logo container — shows logo image, falls back to
+                        // styled "A" initial if asset is missing
                         Container(
-                          width: 104,
-                          height: 104,
+                          width: 110,
+                          height: 110,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.14),
-                            borderRadius: BorderRadius.circular(28),
+                            color: Colors.white.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(30),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.28),
+                              color: Colors.white.withOpacity(0.25),
                               width: 1.5,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 32,
-                                offset: const Offset(0, 12),
+                                color: Colors.black.withOpacity(0.25),
+                                blurRadius: 36,
+                                offset: const Offset(0, 14),
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.travel_explore_rounded,
-                            color: Colors.white,
-                            size: 52,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(28),
+                            child: Image.asset(
+                              'images/image.png',
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) {
+                                // Fallback: stylised letter logo
+                                return Center(
+                                  child: Text(
+                                    'A',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 54,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -2,
+                                      height: 1,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: 24),
                         const Text(
                           'ADVENTRA',
                           style: TextStyle(
@@ -193,7 +216,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
               const SizedBox(height: 16),
 
-              // Tagline
+              // ── Tagline ──────────────────────────────────────
               AnimatedBuilder(
                 animation: _ctrl,
                 builder: (_, __) => FadeTransition(
@@ -214,7 +237,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
               const Spacer(flex: 2),
 
-              // Progress bar
+              // ── Loading bar ──────────────────────────────────
               AnimatedBuilder(
                 animation: _ctrl,
                 builder: (_, __) => FadeTransition(
