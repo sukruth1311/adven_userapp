@@ -718,7 +718,7 @@ class PrivacyScreen extends StatelessWidget {
     ),
     _LS(
       '10. Contact Us',
-      'For questions about this Privacy Policy or our data practices, please contact our Data Protection Officer at privacy@travelapp.com or through the contact form in the App.',
+      'For questions about this Privacy Policy or our data practices, please contact our Data Protection Officer at cc@adventraservices.com or through the contact form in the App.',
     ),
   ];
 

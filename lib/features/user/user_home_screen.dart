@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:user_app/features/user/reviews_screen.dart';
 import 'package:user_app/features/user/services/banquet_service_scree.dart';
 import 'package:user_app/features/user/services/event_service_screen.dart';
@@ -10,7 +9,6 @@ import 'package:user_app/features/user/services/gym_service_screen.dart';
 import 'package:user_app/features/user/services/pool_service_screen.dart';
 import 'package:user_app/features/user/services/resort_pass_screen.dart';
 import 'package:user_app/features/user/services/insurance_service_screen.dart';
-
 import 'package:user_app/state/user_provider.dart';
 import 'package:user_app/state/user_stream.dart';
 import 'package:user_app/themes/app_theme.dart';
@@ -456,12 +454,12 @@ class _MembershipPopup extends StatelessWidget {
   // Keys match membership_allocation_screen.dart exactly
   static const _fac = [
     ('Insurance', 'Insurance', Icons.health_and_safety_outlined),
-    ('Gym Access', 'gym', Icons.fitness_center_rounded),
-    ('Swimming Pool', 'swimmingPool', Icons.pool_rounded),
-    ('Compliment Plot', 'complimentPlot', Icons.villa_outlined),
-    ('Event Pass', 'eventpass', Icons.confirmation_number_rounded),
-    ('Resort Access', 'resortAccess', Icons.villa_rounded),
-    ('Banquet Hall', 'banquetAccess', Icons.meeting_room_rounded),
+    ('Gym Access', 'Gym', Icons.fitness_center_rounded),
+    ('Swimming Pool', 'SwimmingPool', Icons.pool_rounded),
+    ('Compliment Plot', 'ComplimentPlot', Icons.villa_outlined),
+    ('Event Pass', 'Eventpass', Icons.confirmation_number_rounded),
+    ('Resort Access', 'ResortAccess', Icons.villa_rounded),
+    ('Banquet Hall', 'BanquetAccess', Icons.meeting_room_rounded),
   ];
 
   String _formatDate(DateTime dt) {
